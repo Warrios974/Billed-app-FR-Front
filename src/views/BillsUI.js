@@ -50,8 +50,7 @@ export default ({ data: bills, loading, error }) => {
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-          </div>
+          <div class="modal-body"></div>
         </div>
       </div>
     </div>
@@ -68,7 +67,7 @@ export default ({ data: bills, loading, error }) => {
       ${VerticalLayout(120)}
       <div class='content'>
         <div class='content-header'>
-          <div class='content-title'> Mes notes de frais </div>
+          <div class='content-title' data-testid='content-title-new-bill'> Mes notes de frais </div>
           <button type="button" data-testid='btn-new-bill' class="btn btn-primary">Nouvelle note de frais</button>
         </div>
         <div id="data-table">
@@ -83,9 +82,7 @@ export default ({ data: bills, loading, error }) => {
                 <th>Actions</th>
               </tr>
           </thead>
-          <tbody data-testid="tbody">
-            ${rows(bills)}
-          </tbody>
+          <tbody data-testid="tbody">${rows(bills)}</tbody>
           </table>
         </div>
       </div>
