@@ -15,24 +15,43 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
-  handleChangeFile = e => {
+  handleChangeFile = async e => {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
-    const isGoodfileExtension = fileName.match(/([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg)$/) ? true : false
-    !isGoodfileExtension ? e.target.value = '' : ''
-  }
-  handleSubmit = async e => {
-    e.preventDefault()
+
+    const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
+    const isGoodfileExtension = file.name.match(/([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg)$/) ? true : false
+    !isGoodfileExtension ? this.document.querySelector(`input[data-testid="file"]`).value = '' : ''
 
-    const file = e.target.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.querySelector(`input[data-testid="file"]`).value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
+    if (isGoodfileExtension) {
+      formData.append('file', file)
+      formData.append('email', email)
+      await this.store
+          .bills()
+          .create({
+            data: formData,
+            headers: {
+              noContentType: true
+            }
+          })
+          .then(({fileUrl, key}) => {
+            //console.log(fileUrl)
+            this.billId = key
+            this.fileUrl = fileUrl
+            this.fileName = fileName
+          }).catch(error => console.error(error))
+    }
 
+  }
+  handleSubmit = e => {
+    e.preventDefault()
+    //console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
-      email: email || "employe@test.tld",
+      email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
       name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
       amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
@@ -44,28 +63,6 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
-    console.log(bill)
-    console.log(JSON.parse(localStorage.getItem("user")))
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('email', email)
-
-    await this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
-        }
-      })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
-
-
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
