@@ -45,11 +45,12 @@ describe("Given I am connected as an employee", () => {
     })
 
     describe('When I clic on btn "New bill"', () => {
-      test("should display the new bill form", () => {
+      let onNavigate, newBill, bill
+
+      beforeEach(() => {
+        bill = [{...bills[0]}]
   
-        const bill = [{...bills[0]}]
-  
-        const onNavigate = (pathname) => {
+        onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname })
         }
   
@@ -58,11 +59,14 @@ describe("Given I am connected as an employee", () => {
           type: 'Employe'
         }))
   
-        const newBill = new Bills({
+        newBill = new Bills({
           document, onNavigate, store: null, bills:bill, localStorage: window.localStorage
         })
-  
+        
         document.body.innerHTML = BillsUI({ data: bill })
+      })
+
+      test("Then should display the new bill form", () => {
   
         const btnNewBill = getByTestId(document.body, 'btn-new-bill')
   
@@ -80,20 +84,29 @@ describe("Given I am connected as an employee", () => {
     })
     
     describe('When I clic on the eye icon of a bill', () => {
-      test("should display a modal with the picture of the bill", async () => {
+      let onNavigate, newBill, bill
+
+      beforeEach(() => {
+        bill = [{...bills[0]}]
   
-        const bill = [{...bills[0]}]
-        const onNavigate = (pathname) => {
+        onNavigate = (pathname) => {
           document.body.innerHTML = ROUTES({ pathname })
         }
+  
         Object.defineProperty(window, 'localStorage', { value: localStorageMock })
         window.localStorage.setItem('user', JSON.stringify({
           type: 'Employe'
         }))
-        const newBill = new Bills({
+  
+        newBill = new Bills({
           document, onNavigate, store: null, bills:bill, localStorage: window.localStorage
         })
+        
         document.body.innerHTML = BillsUI({ data: bill })
+      })
+
+      test("Then should display a modal with the picture of the bill", async () => {
+  
 
         const eye = getByTestId(document.body, 'icon-eye')
         const handleClickIconEye = jest.fn(() => newBill.handleClickIconEye(eye))
@@ -136,10 +149,6 @@ describe("Given I am connected as an employee", () => {
 
       const billsUI = getByTestId(document.body, 'tbody')
       expect(billsUI.innerHTML).not.toStrictEqual('')
-
-      /*const datesUI = screen.getAllByText(/[0-9]{1,2} [A-Z]{1}[a-zéèû]{2}. [0-9]{2}/g).map(a => a.innerHTML)
-      const numberOfDates = datesUI.length
-      expect(Object.keys(dataOne).length).toStrictEqual(numberOfDates)*/
     })
   })
 })
