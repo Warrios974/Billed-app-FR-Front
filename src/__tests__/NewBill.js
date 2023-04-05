@@ -165,6 +165,7 @@ describe('Given I am connected as an employee ', () => {
       await waitFor(() => expect(newBill.billId).toBe('1234'));
     })
 
+    //Post integration tests
     describe('When an error occurs on API', () => {
       let file;
   
