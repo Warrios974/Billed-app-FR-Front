@@ -35,6 +35,55 @@ describe("Given I am connected as an employee", () => {
       expect(formData).toBeTruthy();
     })
   })
+  describe("When I am on NewBill Page and I upload a bad file in the input file", () => {
+    
+    let fileInput, fileInputLabel, file, onNavigate, newBill
+
+    beforeAll(() => {
+
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employe',
+        email : 'employe@test.tld'
+      }))
+
+    })
+
+    beforeEach(() => {
+
+      document.body.innerHTML = NewBillUI()
+
+      fileInput = screen.getByTestId("file");
+      fileInputLabel = screen.getByLabelText(/Justificatif/i)
+
+      
+      onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+
+      newBill = new NewBill({
+        document, onNavigate, store: mockedStore, localStorage: window.localStorage
+      })
+
+      fileInput.addEventListener("change", newBill.handleChangeFile)
+
+    });
+
+    afterEach(() => {
+
+      document.body.innerHTML = ''
+
+    })
+    
+    test("Then clean field input file", () =>{
+
+        file = new File(['test'], 'C:\fakepath\badFile.pdf', {type: 'application/pdf'})
+        userEvent.upload(fileInput, file)
+        expect(fileInput.value).toBeFalsy()
+
+    })
+  })
+
   describe("When I am on NewBill Page and I submit the form", () => {
     
     let billForm, expenseTypeInput, datePickerInput, amountInput,
@@ -73,22 +122,13 @@ describe("Given I am connected as an employee", () => {
         document, onNavigate, store: mockedStore, localStorage: window.localStorage
       })
 
-      billForm.addEventListener("submit", newBill.handleSubmit);
-      fileInput.addEventListener("change", newBill.handleChangeFile)
+      billForm.addEventListener("submit", newBill.handleSubmit)
 
     });
 
     afterEach(() => {
 
       document.body.innerHTML = ''
-
-    })
-    
-    test("Then clean field file if uplaod a bad file", () =>{
-
-        file = new File(['test'], 'C:\fakepath\badFile.pdf', {type: 'application/pdf'})
-        userEvent.upload(fileInput, file)
-        expect(fileInput.value).toBeFalsy()
 
     })
     
